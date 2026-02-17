@@ -1,0 +1,49 @@
+{% extends "account_requests/base.html" %}
+{% block title %}廃棄承認{% endblock %}
+{% block content %}
+<h1>廃棄承認待ち一覧</h1>
+{% if error_message %}
+<p style="color: red;">{{ error_message }}</p>
+{% endif %}
+<table border="1" cellpadding="4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>資産ID</th>
+            <th>申請者</th>
+            <th>申請日時</th>
+            <th>状態</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for disposal in disposals %}
+        <tr>
+            <td>{{ disposal.id }}</td>
+            <td>{{ disposal.asset_id }}</td>
+            <td>{{ disposal.requested_by_id }}</td>
+            <td>{{ disposal.requested_at }}</td>
+            <td>{{ disposal.disposal_status }}</td>
+            <td>
+                <form method="post" style="margin-bottom: 8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="approve">
+                    <input type="hidden" name="disposal_id" value="{{ disposal.id }}">
+                    <input type="text" name="evidence_text" placeholder="証跡内容" required>
+                    <button type="submit">承認</button>
+                </form>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reject">
+                    <input type="hidden" name="disposal_id" value="{{ disposal.id }}">
+                    <input type="text" name="reason" placeholder="差戻し理由" required>
+                    <button type="submit">差戻し</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">承認待ちはありません</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

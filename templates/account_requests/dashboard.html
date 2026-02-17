@@ -1,0 +1,12 @@
+{% extends "account_requests/base.html" %}
+{% block title %}ダッシュボード{% endblock %}
+{% block content %}
+<h1>ダッシュボード</h1>
+<ul>
+    <li>予算消化率: {{ budget_consumption_rate }}%</li>
+    <li>未紐付け資産件数: {{ unlinked_count }}</li>
+    <li>保守期限30日以内件数: {{ maintenance_due_30_count }}</li>
+    <li>廃棄承認待ち件数: {{ disposal_pending_count }}</li>
+    <li>棚卸差異未完了件数: {{ inventory_diff_count }}</li>
+</ul>
+{% endblock %}

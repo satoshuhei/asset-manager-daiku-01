@@ -1,0 +1,42 @@
+{% extends "account_requests/base.html" %}
+{% block title %}PC管理{% endblock %}
+{% block content %}
+<h1>PC管理</h1>
+{% if error_message %}<p style="color:red;">{{ error_message }}</p>{% endif %}
+
+<h2>PC割当登録</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>PC資産:
+        <select name="asset_id" required>
+            {% for asset in pc_assets %}
+            <option value="{{ asset.id }}">{{ asset.asset_code }} / {{ asset.asset_name }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>利用者ID: <input type="number" name="user_id" required></label><br>
+    <label>OS: <input type="text" name="os_name" required></label><br>
+    <label>スペック: <input type="text" name="spec_text"></label><br>
+    <label>保証期限: <input type="date" name="warranty_expiry_date"></label><br>
+    <button type="submit">登録</button>
+</form>
+
+<h2>PC割当一覧</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>資産コード</th><th>利用者ID</th><th>OS</th><th>スペック</th><th>保証期限</th></tr></thead>
+    <tbody>
+    {% for item in assignments %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.asset.asset_code }}</td>
+            <td>{{ item.user_id }}</td>
+            <td>{{ item.os_name }}</td>
+            <td>{{ item.spec_text }}</td>
+            <td>{{ item.warranty_expiry_date }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">データがありません</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "account_requests/base.html" %}
+{% block title %}資産一覧{% endblock %}
+{% block content %}
+<h1>資産一覧</h1>
+{% if error_message %}<p style="color:red;">{{ error_message }}</p>{% endif %}
+{% if create_error_message %}<p style="color:red;">{{ create_error_message }}</p>{% endif %}
+
+<h2>資産登録</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create_asset">
+    <label>資産コード: <input type="text" name="asset_code" value="{{ create_form.asset_code|default:'' }}" required></label>
+    <label>資産名: <input type="text" name="asset_name" value="{{ create_form.asset_name|default:'' }}" required></label>
+    <label>資産種別:
+        <select name="asset_type_id" required>
+            <option value="">--</option>
+            {% for t in asset_type_options %}
+            <option value="{{ t.id }}" {% if create_form.asset_type_id == t.id|stringformat:"s" %}selected{% endif %}>{{ t.code }}:{{ t.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>小分類:
+        <select name="category_s_id" required>
+            <option value="">--</option>
+            {% for category_s in category_s_options %}
+            <option value="{{ category_s.id }}" {% if create_form.category_s_id == category_s.id|stringformat:"s" %}selected{% endif %}>
+                {{ category_s.category_m.category_l.name }} / {{ category_s.category_m.name }} / {{ category_s.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>資産区分:
+        <select name="asset_kind" required>
+            {% for value, label in asset_kind_options %}
+            <option value="{{ value }}" {% if create_form.asset_kind == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>状態:
+        <select name="status">
+            {% for value, label in status_options %}
+            <option value="{{ value }}" {% if create_form.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <h3>属性20</h3>
+    <label>AS-A-001 <input type="text" name="cls_attr_01" value="{{ create_form.cls_attr_01|default:'' }}"></label>
+    <label>AS-A-002 <input type="text" name="cls_attr_02" value="{{ create_form.cls_attr_02|default:'' }}"></label>
+    <label>AS-A-003 <input type="text" name="cls_attr_03" value="{{ create_form.cls_attr_03|default:'' }}"></label>
+    <label>AS-A-004 <input type="text" name="cls_attr_04" value="{{ create_form.cls_attr_04|default:'' }}"></label>
+    <label>AS-A-005 <input type="text" name="cls_attr_05" value="{{ create_form.cls_attr_05|default:'' }}"></label>
+    <label>AS-A-006 利用者:
+        <select name="person_attr_01">
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if create_form.person_attr_01 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-007 管理責任者:
+        <select name="person_attr_02" required>
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if create_form.person_attr_02 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-008 最終更新者:
+        <select name="person_attr_03">
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if create_form.person_attr_03 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-009 <input type="text" name="location_attr_01" value="{{ create_form.location_attr_01|default:'' }}"></label>
+    <label>AS-A-010 <input type="text" name="location_attr_02" value="{{ create_form.location_attr_02|default:'' }}"></label>
+    <label>AS-A-011 <input type="date" name="date_attr_01" value="{{ create_form.date_attr_01|default:'' }}"></label>
+    <label>AS-A-012 <input type="date" name="date_attr_02" value="{{ create_form.date_attr_02|default:'' }}"></label>
+    <label>AS-A-013 <input type="date" name="date_attr_03" value="{{ create_form.date_attr_03|default:'' }}"></label>
+    <label>AS-A-014 <input type="text" name="free_text_attr_01" value="{{ create_form.free_text_attr_01|default:'' }}"></label>
+    <label>AS-A-015 <input type="text" name="free_text_attr_02" value="{{ create_form.free_text_attr_02|default:'' }}"></label>
+    <label>AS-A-016 <input type="text" name="free_text_attr_03" value="{{ create_form.free_text_attr_03|default:'' }}"></label>
+    <label>AS-A-019 <textarea name="memo_attr_01">{{ create_form.memo_attr_01|default:'' }}</textarea></label>
+    <label>AS-A-020 <textarea name="memo_attr_02">{{ create_form.memo_attr_02|default:'' }}</textarea></label>
+
+    <h3>1:n属性</h3>
+    <label>AS-A-017 multi_attr_01（1行1件）
+        <textarea name="multi_attr_01_lines">{{ create_form.multi_attr_01_lines|default:'' }}</textarea>
+    </label>
+    <label>AS-A-018 multi_attr_02（1行1件）
+        <textarea name="multi_attr_02_lines">{{ create_form.multi_attr_02_lines|default:'' }}</textarea>
+    </label>
+
+    <button type="submit">資産登録</button>
+</form>
+
+<form method="get">
+    <label>資産コード: <input type="text" name="asset_code" value="{{ search.asset_code }}"></label>
+    <label>資産名: <input type="text" name="asset_name" value="{{ search.asset_name }}"></label>
+    <label>小分類:
+        <select name="category_s_id">
+            <option value="">--</option>
+            {% for category_s in category_s_options %}
+            <option value="{{ category_s.id }}" {% if search.category_s_id == category_s.id|stringformat:"s" %}selected{% endif %}>
+                {{ category_s.category_m.category_l.name }} / {{ category_s.category_m.name }} / {{ category_s.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>ステータス:
+        <select name="status" multiple size="4">
+            {% for status_code, status_label in status_options %}
+            <option value="{{ status_code }}" {% if status_code in search.status %}selected{% endif %}>{{ status_label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>予算紐付け状態:
+        <select name="budget_link_status">
+            <option value="">--</option>
+            {% for value, label in budget_link_options %}
+            <option value="{{ value }}" {% if search.budget_link_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>利用者:
+        <select name="person_attr_01_id">
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if search.person_attr_01_id == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit">検索</button>
+</form>
+<table border="1" cellpadding="4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>資産コード</th>
+            <th>資産名</th>
+            <th>分類（大/中/小）</th>
+            <th>状態</th>
+            <th>予算紐付け</th>
+            <th>利用者</th>
+            <th>期限日</th>
+            <th>状態遷移</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td>{{ asset.id }}</td>
+            <td><a href="/assets/{{ asset.id }}">{{ asset.asset_code }}</a></td>
+            <td>{{ asset.asset_name }}</td>
+            <td>{{ asset.category_s.category_m.category_l.name }} / {{ asset.category_s.category_m.name }} / {{ asset.category_s.name }}</td>
+            <td>{{ asset.status }}</td>
+            <td>{{ asset.budget_link_status }}</td>
+            <td>{% if asset.display_person_attr_01 %}{{ asset.display_person_attr_01.username }}{% else %}-{% endif %}</td>
+            <td>{% if asset.display_date_attr_03 %}{{ asset.display_date_attr_03|date:"Y-m-d" }}{% else %}-{% endif %}</td>
+            <td>
+                {% if asset.available_next_statuses %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="asset_id" value="{{ asset.id }}">
+                    <select name="new_status" required>
+                        {% for status in asset.available_next_statuses %}
+                        <option value="{{ status.status_code }}">{{ status.status_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">遷移</button>
+                </form>
+                {% else %}
+                遷移候補なし
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9">データがありません</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

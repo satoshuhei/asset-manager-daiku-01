@@ -1,0 +1,49 @@
+{% extends "account_requests/base.html" %}
+{% block title %}監査ログ{% endblock %}
+{% block content %}
+<h1>監査ログ</h1>
+<form method="get" style="margin-bottom: 12px;">
+    <label>対象テーブル:
+        <input type="text" name="target_table" value="{{ search.target_table }}">
+    </label>
+    <label>操作種別:
+        <input type="text" name="action" value="{{ search.action }}">
+    </label>
+    <label>実行者ID:
+        <input type="number" name="changed_by_id" value="{{ search.changed_by_id }}">
+    </label>
+    <label>実行日From:
+        <input type="date" name="changed_at_from" value="{{ search.changed_at_from }}">
+    </label>
+    <label>実行日To:
+        <input type="date" name="changed_at_to" value="{{ search.changed_at_to }}">
+    </label>
+    <button type="submit">検索</button>
+</form>
+<table border="1" cellpadding="4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>対象</th>
+            <th>操作</th>
+            <th>実行者</th>
+            <th>日時</th>
+            <th>要約</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.target_table }}#{{ log.target_id }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.changed_by.username }} ({{ log.changed_by_id }})</td>
+            <td>{{ log.changed_at }}</td>
+            <td>{{ log.change_summary }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">ログがありません</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

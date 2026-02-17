@@ -1,0 +1,42 @@
+{% extends "account_requests/base.html" %}
+{% block title %}構成ビュー{% endblock %}
+{% block content %}
+<h1>構成ビュー</h1>
+{% if error_message %}<p style="color:red;">{{ error_message }}</p>{% endif %}
+<h2>構成登録</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>構成コード: <input type="text" name="config_code" required></label><br>
+    <label>構成名: <input type="text" name="config_name" required></label><br>
+    <label>状態: <input type="text" name="status" value="ACTIVE"></label><br>
+    <label>資産: 
+        <select name="asset_id">
+            <option value="">--未選択--</option>
+            {% for asset in assets %}
+            <option value="{{ asset.id }}">{{ asset.asset_code }} / {{ asset.asset_name }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>ロール種別: <input type="text" name="role_type" value="MAIN"></label><br>
+    <label>数量: <input type="number" name="quantity" value="1" min="1"></label><br>
+    <button type="submit">登録</button>
+</form>
+
+<h2>構成一覧</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>構成コード</th><th>構成名</th><th>状態</th><th>更新日時</th></tr></thead>
+    <tbody>
+        {% for conf in configurations %}
+        <tr>
+            <td>{{ conf.id }}</td>
+            <td>{{ conf.config_code }}</td>
+            <td>{{ conf.config_name }}</td>
+            <td>{{ conf.status }}</td>
+            <td>{{ conf.updated_at }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">データがありません</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

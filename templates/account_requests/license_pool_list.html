@@ -1,0 +1,71 @@
+{% extends "account_requests/base.html" %}
+{% block title %}ライセンスプール{% endblock %}
+{% block content %}
+<h1>ライセンスプール</h1>
+{% if error_message %}<p style="color:red;">{{ error_message }}</p>{% endif %}
+
+<h2>プール登録</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create_pool">
+    <label>ライセンス名: <input type="text" name="license_name" required></label>
+    <label>総数: <input type="number" name="total_count" min="0" required></label>
+    <label>使用数: <input type="number" name="used_count" min="0" value="0"></label>
+    <label>契約期限: <input type="date" name="contract_expiry_date"></label>
+    <button type="submit">登録</button>
+</form>
+
+<h2>プール一覧</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>ライセンス名</th><th>総数</th><th>使用数</th><th>残数</th><th>割当表示</th></tr></thead>
+    <tbody>
+    {% for pool in pools %}
+        <tr>
+            <td>{{ pool.id }}</td>
+            <td>{{ pool.license_name }}</td>
+            <td>{{ pool.total_count }}</td>
+            <td>{{ pool.used_count }}</td>
+            <td>{{ pool.remaining_count }}</td>
+            <td><a href="/license-pools?pool_id={{ pool.id }}">表示</a></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">データがありません</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if selected_pool_id %}
+<h2>割当登録（プールID: {{ selected_pool_id }}）</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="allocate">
+    <input type="hidden" name="pool_id" value="{{ selected_pool_id }}">
+    <label>資産: 
+        <select name="asset_id" required>
+            {% for asset in assets %}
+            <option value="{{ asset.id }}">{{ asset.asset_code }} / {{ asset.asset_name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>割当数: <input type="number" name="allocated_count" min="1" value="1"></label>
+    <button type="submit">割当</button>
+</form>
+
+<h2>割当履歴</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>資産ID</th><th>割当数</th><th>割当日時</th></tr></thead>
+    <tbody>
+    {% for item in allocations %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.asset_id }}</td>
+            <td>{{ item.allocated_count }}</td>
+            <td>{{ item.allocated_at }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4">データがありません</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

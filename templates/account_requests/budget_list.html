@@ -1,0 +1,97 @@
+{% extends "account_requests/base.html" %}
+{% block title %}予算/執行済予算{% endblock %}
+{% block content %}
+<h1>予算/執行済予算</h1>
+{% if error_message %}<p style="color:red;">{{ error_message }}</p>{% endif %}
+
+<h2>予算登録</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create_budget">
+    <label>年度: <input type="number" name="fiscal_year" required></label>
+    <label>予算科目: <input type="text" name="budget_category" required></label>
+    <label>予算小分類:
+        <select name="budget_category_s_id" required>
+            <option value="">選択してください</option>
+            {% for category_s in budget_categories_s %}
+            <option value="{{ category_s.id }}">
+                {{ category_s.category_m.category_l.name }} / {{ category_s.category_m.name }} / {{ category_s.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>プロジェクトID: <input type="number" name="project_id" required></label>
+    <label>予算額: <input type="number" step="0.01" name="planned_amount" required></label>
+
+    <h3>予算属性20</h3>
+    <table border="1" cellpadding="4">
+        <thead><tr><th>属性コード</th><th>値</th></tr></thead>
+        <tbody>
+        {% for index in budget_attr_indices %}
+        <tr>
+            <td>attr_{{ index|stringformat:"02d" }}</td>
+            <td><input type="text" name="attr_{{ index|stringformat:"02d" }}"></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>1:n情報（MULTI_01 / MULTI_02）</h3>
+    <label>MULTI_01 値: <input type="text" name="multi_multi_01_value" maxlength="500"></label>
+    <label>MULTI_01 表示順: <input type="number" name="multi_multi_01_sort" value="1"></label>
+    <br>
+    <label>MULTI_02 値: <input type="text" name="multi_multi_02_value" maxlength="500"></label>
+    <label>MULTI_02 表示順: <input type="number" name="multi_multi_02_sort" value="1"></label>
+    <br><br>
+    <button type="submit">予算登録</button>
+</form>
+
+<h2>予算一覧</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>年度</th><th>科目</th><th>プロジェクトID</th><th>予算額</th><th>実績表示</th></tr></thead>
+    <tbody>
+    {% for budget in budgets %}
+        <tr>
+            <td>{{ budget.id }}</td>
+            <td>{{ budget.fiscal_year }}</td>
+            <td>{{ budget.budget_category }}</td>
+            <td>{{ budget.project_id }}</td>
+            <td>{{ budget.planned_amount }}</td>
+            <td><a href="/budgets?budget_id={{ budget.id }}">表示</a></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">データがありません</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if selected_budget %}
+<h2>執行済予算登録（予算ID: {{ selected_budget.id }}）</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create_execution">
+    <input type="hidden" name="budget_id" value="{{ selected_budget.id }}">
+    <label>執行日: <input type="date" name="executed_date" required></label>
+    <label>執行額: <input type="number" step="0.01" name="executed_amount" required></label>
+    <label>説明: <input type="text" name="description"></label>
+    <button type="submit">執行登録</button>
+</form>
+
+<h2>執行済予算一覧</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>ID</th><th>執行日</th><th>執行額</th><th>説明</th></tr></thead>
+    <tbody>
+    {% for item in executions %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.executed_date }}</td>
+            <td>{{ item.executed_amount }}</td>
+            <td>{{ item.description }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4">データがありません</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

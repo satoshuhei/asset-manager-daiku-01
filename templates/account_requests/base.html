@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Asset Manager{% endblock %}</title>
+</head>
+<body>
+    {% if request.user.is_authenticated %}
+    <nav>
+        <a href="/dashboard">ダッシュボード</a> |
+        <a href="/assets">資産一覧</a> |
+        <a href="/configurations">構成ビュー</a> |
+        <a href="/budgets">予算</a> |
+        <a href="/license-pools">ライセンス</a> |
+        <a href="/pc-management">PC管理</a> |
+        <a href="/inventories">棚卸</a> |
+        <a href="/disposals/approvals">廃棄承認</a> |
+        <a href="/audit-logs">監査ログ</a> |
+        <form action="/logout" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">ログアウト</button>
+        </form>
+    </nav>
+    <hr>
+    {% endif %}
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,141 @@
+{% extends "account_requests/base.html" %}
+{% block title %}資産詳細{% endblock %}
+{% block content %}
+<h1>資産詳細</h1>
+{% if update_error_message %}<p style="color:red;">{{ update_error_message }}</p>{% endif %}
+<ul>
+    <li>ID: {{ asset.id }}</li>
+    <li>資産コード: {{ asset.asset_code }}</li>
+    <li>資産名: {{ asset.asset_name }}</li>
+    <li>分類: {{ asset.category_s.category_m.category_l.name }} / {{ asset.category_s.category_m.name }} / {{ asset.category_s.name }}</li>
+    <li>種別: {{ asset.asset_kind }}</li>
+    <li>状態: {{ asset.status }}</li>
+    <li>予算紐付け: {{ asset.budget_link_status }}</li>
+</ul>
+
+<h2>属性20</h2>
+<table border="1" cellpadding="4">
+    <tbody>
+        <tr><th>AS-A-001</th><td>{% if attr_value and attr_value.cls_attr_01 %}{{ attr_value.cls_attr_01 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-002</th><td>{% if attr_value and attr_value.cls_attr_02 %}{{ attr_value.cls_attr_02 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-003</th><td>{% if attr_value and attr_value.cls_attr_03 %}{{ attr_value.cls_attr_03 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-004</th><td>{% if attr_value and attr_value.cls_attr_04 %}{{ attr_value.cls_attr_04 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-005</th><td>{% if attr_value and attr_value.cls_attr_05 %}{{ attr_value.cls_attr_05 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-006 利用者</th><td>{% if attr_value and attr_value.person_attr_01 %}{{ attr_value.person_attr_01.username }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-007 管理責任者</th><td>{% if attr_value and attr_value.person_attr_02 %}{{ attr_value.person_attr_02.username }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-008 最終更新者</th><td>{% if attr_value and attr_value.person_attr_03 %}{{ attr_value.person_attr_03.username }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-009</th><td>{% if attr_value and attr_value.location_attr_01 %}{{ attr_value.location_attr_01 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-010</th><td>{% if attr_value and attr_value.location_attr_02 %}{{ attr_value.location_attr_02 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-011</th><td>{% if attr_value and attr_value.date_attr_01 %}{{ attr_value.date_attr_01|date:"Y-m-d" }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-012</th><td>{% if attr_value and attr_value.date_attr_02 %}{{ attr_value.date_attr_02|date:"Y-m-d" }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-013</th><td>{% if attr_value and attr_value.date_attr_03 %}{{ attr_value.date_attr_03|date:"Y-m-d" }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-014</th><td>{% if attr_value and attr_value.free_text_attr_01 %}{{ attr_value.free_text_attr_01 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-015</th><td>{% if attr_value and attr_value.free_text_attr_02 %}{{ attr_value.free_text_attr_02 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-016</th><td>{% if attr_value and attr_value.free_text_attr_03 %}{{ attr_value.free_text_attr_03 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-017</th><td>{% if multi_attr_01_values %}{{ multi_attr_01_values|length }}件{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-018</th><td>{% if multi_attr_02_values %}{{ multi_attr_02_values|length }}件{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-019</th><td>{% if attr_value and attr_value.memo_attr_01 %}{{ attr_value.memo_attr_01 }}{% else %}-{% endif %}</td></tr>
+        <tr><th>AS-A-020</th><td>{% if attr_value and attr_value.memo_attr_02 %}{{ attr_value.memo_attr_02 }}{% else %}-{% endif %}</td></tr>
+    </tbody>
+</table>
+
+<h2>1:n属性</h2>
+<h3>AS-A-017 multi_attr_01</h3>
+<ul>
+    {% for item in multi_attr_01_values %}
+    <li>{{ item.value }}</li>
+    {% empty %}
+    <li>-</li>
+    {% endfor %}
+</ul>
+
+<h3>AS-A-018 multi_attr_02</h3>
+<ul>
+    {% for item in multi_attr_02_values %}
+    <li>{{ item.value }}</li>
+    {% empty %}
+    <li>-</li>
+    {% endfor %}
+</ul>
+
+<h2>資産編集</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="update_asset">
+    <label>資産名: <input type="text" name="asset_name" value="{{ edit_form.asset_name|default:'' }}" required></label>
+    <label>小分類:
+        <select name="category_s_id" required>
+            {% for category_s in category_s_options %}
+            <option value="{{ category_s.id }}" {% if edit_form.category_s_id == category_s.id|stringformat:"s" %}selected{% endif %}>
+                {{ category_s.category_m.category_l.name }} / {{ category_s.category_m.name }} / {{ category_s.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>資産区分:
+        <select name="asset_kind" required>
+            {% for value, label in asset_kind_options %}
+            <option value="{{ value }}" {% if edit_form.asset_kind == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>状態:
+        <select name="status">
+            {% for value, label in status_options %}
+            <option value="{{ value }}" {% if edit_form.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <h3>属性20編集</h3>
+    <label>AS-A-001 <input type="text" name="cls_attr_01" value="{{ edit_form.cls_attr_01|default:'' }}"></label>
+    <label>AS-A-002 <input type="text" name="cls_attr_02" value="{{ edit_form.cls_attr_02|default:'' }}"></label>
+    <label>AS-A-003 <input type="text" name="cls_attr_03" value="{{ edit_form.cls_attr_03|default:'' }}"></label>
+    <label>AS-A-004 <input type="text" name="cls_attr_04" value="{{ edit_form.cls_attr_04|default:'' }}"></label>
+    <label>AS-A-005 <input type="text" name="cls_attr_05" value="{{ edit_form.cls_attr_05|default:'' }}"></label>
+    <label>AS-A-006 利用者:
+        <select name="person_attr_01">
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if edit_form.person_attr_01 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-007 管理責任者:
+        <select name="person_attr_02" required>
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if edit_form.person_attr_02 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-008 最終更新者:
+        <select name="person_attr_03">
+            <option value="">--</option>
+            {% for person in person_options %}
+            <option value="{{ person.id }}" {% if edit_form.person_attr_03 == person.id|stringformat:"s" %}selected{% endif %}>{{ person.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>AS-A-009 <input type="text" name="location_attr_01" value="{{ edit_form.location_attr_01|default:'' }}"></label>
+    <label>AS-A-010 <input type="text" name="location_attr_02" value="{{ edit_form.location_attr_02|default:'' }}"></label>
+    <label>AS-A-011 <input type="date" name="date_attr_01" value="{{ edit_form.date_attr_01|default:'' }}"></label>
+    <label>AS-A-012 <input type="date" name="date_attr_02" value="{{ edit_form.date_attr_02|default:'' }}"></label>
+    <label>AS-A-013 <input type="date" name="date_attr_03" value="{{ edit_form.date_attr_03|default:'' }}"></label>
+    <label>AS-A-014 <input type="text" name="free_text_attr_01" value="{{ edit_form.free_text_attr_01|default:'' }}"></label>
+    <label>AS-A-015 <input type="text" name="free_text_attr_02" value="{{ edit_form.free_text_attr_02|default:'' }}"></label>
+    <label>AS-A-016 <input type="text" name="free_text_attr_03" value="{{ edit_form.free_text_attr_03|default:'' }}"></label>
+    <label>AS-A-019 <textarea name="memo_attr_01">{{ edit_form.memo_attr_01|default:'' }}</textarea></label>
+    <label>AS-A-020 <textarea name="memo_attr_02">{{ edit_form.memo_attr_02|default:'' }}</textarea></label>
+
+    <h3>1:n属性編集</h3>
+    <label>AS-A-017 multi_attr_01（1行1件）
+        <textarea name="multi_attr_01_lines">{{ edit_form.multi_attr_01_lines|default:'' }}</textarea>
+    </label>
+    <label>AS-A-018 multi_attr_02（1行1件）
+        <textarea name="multi_attr_02_lines">{{ edit_form.multi_attr_02_lines|default:'' }}</textarea>
+    </label>
+
+    <button type="submit">更新</button>
+</form>
+{% endblock %}
