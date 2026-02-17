@@ -598,3 +598,50 @@
 - 影響:
   - `apps/account_requests/tests.py`（性能ガバナンス閾値）を更新
   - 全体回帰 `apps.account_requests.tests` 38件成功を確認
+
+## 2026-02-18（追加44）
+- 対象: サンプルデータ準備（運用実行）
+- 判断:
+  - `migrate` 実行後に `seed_demo_data --bulk-size 500` を実行し、既存重複はスキップして現在データを維持する
+  - サンプル有効性確認として `Asset` 総件数を確認し、501件を準備完了とする
+- 理由:
+  - ローカルで即時に画面/API検証できるデータ量を確保しつつ、既存の検証データを毀損しないため
+- 影響:
+  - DBマイグレーション適用済み（追加適用なし）
+  - `seed_demo_data` 実行結果: `bulk assets created: 0`（重複回避）
+  - `Asset` 総件数 501件を確認
+
+## 2026-02-18（追加45）
+- 対象: BootstrapによるWeb UIリッチ化
+- 判断:
+  - `base.html` に Bootstrap 5.3.3 を導入し、共通ナビゲーション/コンテナ/基本スタイルを統一する
+  - 主要画面（`dashboard` / `asset_list` / `asset_detail`）をカード・グリッド・レスポンシブテーブル・フォームコントロールへ刷新する
+  - 既存機能や入力項目は維持し、見た目改善のみを行う
+- 理由:
+  - 機能要件を変えずに可読性・操作性・視認性を短時間で改善し、ユーザー体験を向上させるため
+- 影響:
+  - `templates/account_requests/base.html` を更新
+  - `templates/account_requests/dashboard.html` を更新
+  - `templates/account_requests/asset_list.html` を更新
+  - `templates/account_requests/asset_detail.html` を更新
+  - 主要Webテスト3件成功を確認
+
+## 2026-02-18（追加46）
+- 対象: Bootstrap UI適用範囲の全画面統一（残画面仕上げ）
+- 判断:
+  - 主要4画面に続き、残り8画面（`configuration_list` / `budget_list` / `license_pool_list` / `pc_management` / `inventory_list` / `disposal_approval` / `audit_logs` / `login`）を同一Bootstrapトーンへ統一する
+  - UI刷新は見た目・レイアウトのみを対象とし、POSTパラメータ名・フォーム項目・画面導線は変更しない
+  - 仕上げ検証として対象導線のWebテスト5件とテンプレートエラーチェックを実施し、機能退行なしを完了条件とする
+- 理由:
+  - 画面ごとの見た目差を解消し、操作体験を一貫化するため
+  - 既存業務ロジック（Service層経由更新）を維持しつつ、低リスクでUX改善を完了するため
+- 影響:
+  - `templates/account_requests/configuration_list.html` を更新
+  - `templates/account_requests/budget_list.html` を更新
+  - `templates/account_requests/license_pool_list.html` を更新
+  - `templates/account_requests/pc_management.html` を更新
+  - `templates/account_requests/inventory_list.html` を更新
+  - `templates/account_requests/disposal_approval.html` を更新
+  - `templates/account_requests/audit_logs.html` を更新
+  - `templates/account_requests/login.html` を更新
+  - 代表Webテスト5件成功、および対象テンプレートのエラー0件を確認

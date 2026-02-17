@@ -1,10 +1,28 @@
 {% extends "account_requests/base.html" %}
 {% block title %}ログイン{% endblock %}
 {% block content %}
-<h1>ログイン</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">ログイン</button>
-</form>
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h4 mb-3 text-center">ログイン</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label" for="id_username">ユーザー名</label>
+                        <input class="form-control" type="text" name="username" id="id_username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="id_password">パスワード</label>
+                        <input class="form-control" type="password" name="password" id="id_password" required>
+                    </div>
+                    {% if form.errors %}
+                    <div class="alert alert-danger py-2">ログインに失敗しました。入力内容を確認してください。</div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100">ログイン</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

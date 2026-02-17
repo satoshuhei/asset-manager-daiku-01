@@ -387,3 +387,51 @@
 ### 修正対象リンク
 - `apps/account_requests/tests.py`
 - `ai/decision_log.md`
+
+## 2026-02-18（運用: サンプルデータ準備）
+### 要約
+- `migrate` を実行し、DBスキーマが最新であることを確認した（追加適用なし）。
+- `seed_demo_data --bulk-size 500` を実行し、重複回避ロジックにより既存データを維持した。
+- 準備結果として `Asset` 総件数 501件を確認し、サンプルデータ利用可能状態にした。
+
+### 完了タスク
+- サンプルデータを準備する（migrate + seed + 件数確認）
+
+### 修正対象リンク
+- `ai/todo.md`
+- `ai/decision_log.md`
+
+## 2026-02-18（実装: BootstrapによるUIリッチ化）
+### 要約
+- 共通レイアウトに Bootstrap 5.3.3 を導入し、ナビゲーションとページ全体のスタイルを統一した。
+- `dashboard` / `asset_list` / `asset_detail` をカード・グリッド・レスポンシブテーブル・フォーム中心のUIへ刷新した。
+- 主要Webテスト3件を実行し、機能退行がないことを確認した。
+
+### 完了タスク
+- BootstrapでリッチなUIにする
+
+### 修正対象リンク
+- `templates/account_requests/base.html`
+- `templates/account_requests/dashboard.html`
+- `templates/account_requests/asset_list.html`
+- `templates/account_requests/asset_detail.html`
+
+## 2026-02-18（実装: Bootstrap UI統一の仕上げ）
+### 要約
+- 残り8画面（構成管理/予算/ライセンス/PC/棚卸/廃棄承認/監査ログ/ログイン）をBootstrapトーンへ統一し、UIの一貫性を確保した。
+- フォーム項目・POSTパラメータ・画面導線は維持し、見た目改善のみに限定して実装した。
+- 代表導線Webテスト5件を実行して成功し、対象テンプレート8ファイルのエラー0件を確認した。
+
+### 完了タスク
+- BootstrapリッチUI化の残り画面を同一トーンで統一し、回帰確認まで完了する
+
+### 修正対象リンク
+- `templates/account_requests/configuration_list.html`
+- `templates/account_requests/budget_list.html`
+- `templates/account_requests/license_pool_list.html`
+- `templates/account_requests/pc_management.html`
+- `templates/account_requests/inventory_list.html`
+- `templates/account_requests/disposal_approval.html`
+- `templates/account_requests/audit_logs.html`
+- `templates/account_requests/login.html`
+- `ai/decision_log.md`

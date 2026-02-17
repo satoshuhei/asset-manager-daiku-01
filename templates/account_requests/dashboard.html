@@ -1,12 +1,54 @@
 {% extends "account_requests/base.html" %}
 {% block title %}ダッシュボード{% endblock %}
 {% block content %}
-<h1>ダッシュボード</h1>
-<ul>
-    <li>予算消化率: {{ budget_consumption_rate }}%</li>
-    <li>未紐付け資産件数: {{ unlinked_count }}</li>
-    <li>保守期限30日以内件数: {{ maintenance_due_30_count }}</li>
-    <li>廃棄承認待ち件数: {{ disposal_pending_count }}</li>
-    <li>棚卸差異未完了件数: {{ inventory_diff_count }}</li>
-</ul>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">ダッシュボード</h1>
+    <span class="badge text-bg-primary">KPI</span>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h6 text-muted mb-2">予算消化率</h2>
+                <p class="display-6 mb-0">{{ budget_consumption_rate }}%</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h6 text-muted mb-2">未紐付け資産件数</h2>
+                <p class="display-6 mb-0">{{ unlinked_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h6 text-muted mb-2">保守期限30日以内件数</h2>
+                <p class="display-6 mb-0">{{ maintenance_due_30_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h6 text-muted mb-2">廃棄承認待ち件数</h2>
+                <p class="display-6 mb-0">{{ disposal_pending_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h6 text-muted mb-2">棚卸差異未完了件数</h2>
+                <p class="display-6 mb-0">{{ inventory_diff_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

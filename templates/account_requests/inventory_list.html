@@ -1,103 +1,87 @@
 {% extends "account_requests/base.html" %}
 {% block title %}棚卸{% endblock %}
 {% block content %}
-<h1>棚卸</h1>
-{% if error_message %}
-<p style="color: red;">{{ error_message }}</p>
-{% endif %}
+<h1 class="h3 mb-3">棚卸</h1>
+{% if error_message %}<div class="alert alert-danger py-2">{{ error_message }}</div>{% endif %}
 
-<h2>差異登録</h2>
-<form method="post" style="margin-bottom: 16px;">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="create_result">
-    <label>棚卸回:
-        <select name="cycle_id" required>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white"><strong>差異登録</strong></div>
+    <div class="card-body">
+        <form method="post" class="row g-3 align-items-end">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_result">
+            <div class="col-md-2"><label class="form-label">棚卸回</label><select class="form-select" name="cycle_id" required>{% for cycle in cycles %}<option value="{{ cycle.id }}">{{ cycle.cycle_code }}</option>{% endfor %}</select></div>
+            <div class="col-md-2"><label class="form-label">資産</label><select class="form-select" name="asset_id" required>{% for asset in assets %}<option value="{{ asset.id }}">{{ asset.asset_code }}</option>{% endfor %}</select></div>
+            <div class="col-md-2"><label class="form-label">差異区分</label><select class="form-select" name="difference_type" required><option value="MISSING">不足</option><option value="EXCESS">過剰</option><option value="STATUS_DIFF">状態差異</option></select></div>
+            <div class="col-md-2"><label class="form-label">是正状態</label><select class="form-select" name="correction_status"><option value="OPEN">未対応</option><option value="IN_PROGRESS">対応中</option><option value="DONE">完了</option></select></div>
+            <div class="col-md-3"><label class="form-label">メモ</label><input class="form-control" type="text" name="correction_note" maxlength="2000"></div>
+            <div class="col-md-1 text-end"><button class="btn btn-primary" type="submit">登録</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white"><strong>棚卸回一覧</strong></div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-light"><tr><th>ID</th><th>回コード</th><th>年</th><th>月</th><th>状態</th></tr></thead>
+            <tbody>
             {% for cycle in cycles %}
-            <option value="{{ cycle.id }}">{{ cycle.cycle_code }}</option>
+                <tr>
+                    <td>{{ cycle.id }}</td>
+                    <td>{{ cycle.cycle_code }}</td>
+                    <td>{{ cycle.cycle_year }}</td>
+                    <td>{{ cycle.cycle_month }}</td>
+                    <td>{{ cycle.status }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-4">データがありません</td></tr>
             {% endfor %}
-        </select>
-    </label>
-    <label>資産:
-        <select name="asset_id" required>
-            {% for asset in assets %}
-            <option value="{{ asset.id }}">{{ asset.asset_code }}</option>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white"><strong>差異一覧（最新200件）</strong></div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-light"><tr><th>ID</th><th>回コード</th><th>資産コード</th><th>差異区分</th><th>是正状態</th><th>是正メモ</th><th>更新日時</th><th>更新</th></tr></thead>
+            <tbody>
+            {% for item in results %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.cycle.cycle_code }}</td>
+                    <td>{{ item.asset.asset_code }}</td>
+                    <td>{{ item.difference_type }}</td>
+                    <td>{{ item.correction_status }}</td>
+                    <td>{{ item.correction_note }}</td>
+                    <td>{{ item.updated_at }}</td>
+                    <td>
+                        <form method="post" class="d-flex gap-2 flex-wrap">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_result">
+                            <input type="hidden" name="result_id" value="{{ item.id }}">
+                            <select class="form-select form-select-sm" name="difference_type">
+                                <option value="MISSING" {% if item.difference_type == 'MISSING' %}selected{% endif %}>不足</option>
+                                <option value="EXCESS" {% if item.difference_type == 'EXCESS' %}selected{% endif %}>過剰</option>
+                                <option value="STATUS_DIFF" {% if item.difference_type == 'STATUS_DIFF' %}selected{% endif %}>状態差異</option>
+                            </select>
+                            <select class="form-select form-select-sm" name="correction_status">
+                                <option value="OPEN" {% if item.correction_status == 'OPEN' %}selected{% endif %}>未対応</option>
+                                <option value="IN_PROGRESS" {% if item.correction_status == 'IN_PROGRESS' %}selected{% endif %}>対応中</option>
+                                <option value="DONE" {% if item.correction_status == 'DONE' %}selected{% endif %}>完了</option>
+                            </select>
+                            <input class="form-control form-control-sm" type="text" name="correction_note" value="{{ item.correction_note }}" maxlength="2000">
+                            <button class="btn btn-sm btn-outline-primary" type="submit">更新</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-4">データがありません</td></tr>
             {% endfor %}
-        </select>
-    </label>
-    <label>差異区分:
-        <select name="difference_type" required>
-            <option value="MISSING">不足</option>
-            <option value="EXCESS">過剰</option>
-            <option value="STATUS_DIFF">状態差異</option>
-        </select>
-    </label>
-    <label>是正状態:
-        <select name="correction_status">
-            <option value="OPEN">未対応</option>
-            <option value="IN_PROGRESS">対応中</option>
-            <option value="DONE">完了</option>
-        </select>
-    </label>
-    <label>メモ:
-        <input type="text" name="correction_note" maxlength="2000">
-    </label>
-    <button type="submit">登録</button>
-</form>
-
-<h2>棚卸回一覧</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>ID</th><th>回コード</th><th>年</th><th>月</th><th>状態</th></tr></thead>
-    <tbody>
-    {% for cycle in cycles %}
-        <tr>
-            <td>{{ cycle.id }}</td>
-            <td>{{ cycle.cycle_code }}</td>
-            <td>{{ cycle.cycle_year }}</td>
-            <td>{{ cycle.cycle_month }}</td>
-            <td>{{ cycle.status }}</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="5">データがありません</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-<h2>差異一覧（最新200件）</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>ID</th><th>回コード</th><th>資産コード</th><th>差異区分</th><th>是正状態</th><th>是正メモ</th><th>更新日時</th><th>更新</th></tr></thead>
-    <tbody>
-    {% for item in results %}
-        <tr>
-            <td>{{ item.id }}</td>
-            <td>{{ item.cycle.cycle_code }}</td>
-            <td>{{ item.asset.asset_code }}</td>
-            <td>{{ item.difference_type }}</td>
-            <td>{{ item.correction_status }}</td>
-            <td>{{ item.correction_note }}</td>
-            <td>{{ item.updated_at }}</td>
-            <td>
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="update_result">
-                    <input type="hidden" name="result_id" value="{{ item.id }}">
-                    <select name="difference_type">
-                        <option value="MISSING" {% if item.difference_type == 'MISSING' %}selected{% endif %}>不足</option>
-                        <option value="EXCESS" {% if item.difference_type == 'EXCESS' %}selected{% endif %}>過剰</option>
-                        <option value="STATUS_DIFF" {% if item.difference_type == 'STATUS_DIFF' %}selected{% endif %}>状態差異</option>
-                    </select>
-                    <select name="correction_status">
-                        <option value="OPEN" {% if item.correction_status == 'OPEN' %}selected{% endif %}>未対応</option>
-                        <option value="IN_PROGRESS" {% if item.correction_status == 'IN_PROGRESS' %}selected{% endif %}>対応中</option>
-                        <option value="DONE" {% if item.correction_status == 'DONE' %}selected{% endif %}>完了</option>
-                    </select>
-                    <input type="text" name="correction_note" value="{{ item.correction_note }}" maxlength="2000">
-                    <button type="submit">更新</button>
-                </form>
-            </td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="8">データがありません</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
